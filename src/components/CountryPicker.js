@@ -125,9 +125,9 @@ const CountryPicker = () => {
 
   // Infinite Scroll
   const [intersectionRoot, setIntersectionRoot] = useState(null);
-  const [element, setElement] = useState(null);
+  const [intersectionElement, setIntersectionElement] = useState(null);
   const load = () => dispatch(loadMoreCountries(countriesList, after));
-  useIntersectionObserver(intersectionRoot, element, load);
+  useIntersectionObserver(intersectionRoot, intersectionElement, load);
 
   // Track Outside Click
   const containerRef = useRef();
@@ -214,7 +214,7 @@ const CountryPicker = () => {
                       {country.name}
                     </Country>
                   ))}
-                {more && <li ref={setElement}></li>}
+                {more && <li ref={setIntersectionElement}></li>}
               </CountryList>
             </CountryListContainer>
           )}

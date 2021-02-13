@@ -4,12 +4,9 @@ import {
   COUNTRY_LIST_SUCCESS,
   COUNTRY_LIST_FAIL,
   COUNTRY_FILTER,
-  CLEAR_SELECTED,
-  CLEAR_QUERY,
+  CLEAR_FILTERED,
   CLEAR_AFTER,
   LOAD_MORE,
-  SET_SELECTED,
-  SET_QUERY,
   PER_PAGE,
 } from '../constants/countryPickerConstants';
 
@@ -36,25 +33,21 @@ export const getCountries = () => async (dispatch) => {
   }
 };
 
-export const filterCountries = (query) => (dispatch) => {
-  dispatch({ type: SET_QUERY, payload: query });
-  dispatch({ type: COUNTRY_FILTER, payload: query });
-};
+export const filterCountries = (countries, query) => (dispatch) =>
+  dispatch({
+    type: COUNTRY_FILTER,
+    payload: countries.filter((country) =>
+      country.name.toLowerCase().includes(query.toLowerCase())
+    ),
+  });
 
-export const setSelectedCountry = (selected) => (dispatch) => {
-  dispatch({ type: SET_SELECTED, payload: selected });
-  dispatch({ type: CLEAR_QUERY });
-};
-
-export const loadMoreCountries = (countriesList, after) => (dispatch) => {
-  const countriesToLoad = countriesList.slice(after, after + PER_PAGE);
-
-  dispatch({ type: LOAD_MORE, payload: countriesToLoad });
-};
+export const loadMoreCountries = (countries, after) => (dispatch) =>
+  dispatch({
+    type: LOAD_MORE,
+    payload: countries.slice(after, after + PER_PAGE),
+  });
 
 export const clearCountry = () => (dispatch) => {
-  dispatch({ type: CLEAR_SELECTED });
-  dispatch({ type: CLEAR_QUERY });
   dispatch({ type: CLEAR_AFTER });
-  dispatch(filterCountries(''));
+  dispatch({ type: CLEAR_FILTERED });
 };

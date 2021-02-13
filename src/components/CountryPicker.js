@@ -2,8 +2,10 @@ import 'intersection-observer';
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-// Custom Hook
 import useOutsideClick from '../utils/useOutsideClick';
+import useIntersectionObserver from '../utils/useIntersectionObserver';
+
+import ChevronIcon from '../assets/images/chevron-down.svg';
 
 import GlobalStyles from '../styles/GlobalStyles';
 import styled from 'styled-components';
@@ -11,14 +13,12 @@ import styled from 'styled-components';
 import {
   getCountries,
   filterCountries,
-  setSelectedCountry,
   loadMoreCountries,
   clearCountry,
 } from '../actions/countryPickerActions';
 
-import ChevronIcon from '../assets/images/chevron-down.svg';
-
 const CountryPickerContainer = styled.div`
+  position: relative;
   width: 200px;
 `;
 
@@ -29,7 +29,7 @@ const PlaceholderContainer = styled.div`
   left: 11px;
   overflow: hidden;
   height: 36px;
-  width: 180px;
+  width: 160px;
 `;
 
 const Placeholder = styled.span`
@@ -45,6 +45,7 @@ const InputContainer = styled.div`
   border-radius: 4px;
   height: 36px;
   width: 100%;
+  z-index: 1;
   &:focus {
     box-shadow: 0 0 0 2pt #4134ff;
   }
@@ -55,9 +56,9 @@ const Input = styled.input`
   height: 100%;
   width: 100%;
   border: none;
-  padding: 0 11px;
+  padding: 0 31px 0 11px;
   background-color: transparent;
-  z-index: 10;
+  z-index: 1;
   font-size: 14px;
 `;
 
@@ -71,6 +72,9 @@ const CountryListContainer = styled.div`
   border-radius: 4px;
   overflow: scroll;
   box-shadow: 0px 0px 12px 5px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  width: 100%;
+  background: #fff;
 `;
 
 const CountryList = styled.ul`
@@ -105,94 +109,48 @@ const SelectedCountryImage = styled.img`
 `;
 
 const CountryPicker = () => {
-  // Redux State
   const dispatch = useDispatch();
   const countryPicker = useSelector((state) => state.countryPicker);
-  const {
-    loading,
-    countries,
-    selected,
-    filtered,
-    query,
-    after,
-    loaded,
-    more,
-  } = countryPicker;
+  const { loading, countries, filtered, after, loaded, more } = countryPicker;
 
-  // Get Countries
   useEffect(() => {
     dispatch(getCountries());
   }, [dispatch]);
 
-  // Component State
-  const [isOpen, setIsOpen] = useState(false);
-  const [element, setElement] = useState(null);
-
   const countriesList = filtered !== null ? filtered : countries;
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(null);
+
   // Infinite Scroll
-  const load = () => {
-    dispatch(loadMoreCountries(countriesList, after));
-  };
-
-  const loader = useRef(load);
-
-  useEffect(() => {
-    loader.current = load;
-  }, [load]);
-
-  const observer = useRef(
-    new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting) {
-          loader.current();
-        }
-      },
-      {
-        threshold: 1,
-        root: document.querySelector('#infinite-scroll'),
-      }
-    )
-  );
-
-  useEffect(() => {
-    const currentElement = element;
-    const currentObserver = observer.current;
-
-    if (currentElement) {
-      currentObserver.observe(currentElement);
-    }
-
-    return () => {
-      if (currentElement) {
-        currentObserver.unobserve(currentElement);
-      }
-    };
-  }, [element]);
+  const [intersectionRoot, setIntersectionRoot] = useState(null);
+  const [element, setElement] = useState(null);
+  const load = () => dispatch(loadMoreCountries(countriesList, after));
+  useIntersectionObserver(intersectionRoot, element, load);
 
   // Track Outside Click
   const containerRef = useRef();
   useOutsideClick(containerRef, () => setIsOpen(false));
 
-  // Event Handlers
-  const toggleDropDown = () => setIsOpen(true);
-  const onChangeHandler = (e) => dispatch(filterCountries(e.target.value));
+  const onFocusHandler = () => setIsOpen(true);
+  const onChangeHandler = (e) => {
+    dispatch(filterCountries(countries, e.target.value));
+    setQuery(e.target.value);
+  };
 
   const onKeyDownHandler = (e) => {
     if (selected !== null && e.keyCode === 8) {
       dispatch(clearCountry());
+      setSelected(null);
+      setQuery('');
     }
   };
 
   const onClickHandler = (name, flag) => {
-    dispatch(
-      setSelectedCountry({
-        name,
-        flag,
-      })
-    );
+    setSelected({ name, flag });
     setIsOpen(false);
+    setQuery('');
   };
 
   return (
@@ -208,7 +166,7 @@ const CountryPicker = () => {
               type="text"
               onChange={onChangeHandler}
               onKeyDown={onKeyDownHandler}
-              onFocus={toggleDropDown}
+              onFocus={onFocusHandler}
               value={query}
               autoComplete="off"
             />
@@ -234,8 +192,8 @@ const CountryPicker = () => {
               <img src={ChevronIcon} alt="Chevron" />
             </InputIcon>
           </InputContainer>
-          {isOpen && countries && (
-            <CountryListContainer id="infinite-scroll">
+          {isOpen && loaded.length > 0 && (
+            <CountryListContainer ref={setIntersectionRoot}>
               <CountryList>
                 {loaded !== null &&
                   loaded.map((country) => (
@@ -256,7 +214,7 @@ const CountryPicker = () => {
                       {country.name}
                     </Country>
                   ))}
-                {more && <li style={{ height: '8px' }} ref={setElement}></li>}
+                {more && <li ref={setElement}></li>}
               </CountryList>
             </CountryListContainer>
           )}

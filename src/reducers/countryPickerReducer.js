@@ -51,6 +51,7 @@ export const countryPickerReducer = (
         ...state,
         filtered: null,
         loaded: [],
+        more: true,
       };
     case LOAD_MORE:
       return {

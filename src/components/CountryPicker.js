@@ -192,7 +192,7 @@ const CountryPicker = () => {
               <img src={ChevronIcon} alt="Chevron" />
             </InputIcon>
           </InputContainer>
-          {isOpen && loaded.length > 0 && (
+          {isOpen && (
             <CountryListContainer ref={setIntersectionRoot}>
               <CountryList>
                 {loaded !== null &&

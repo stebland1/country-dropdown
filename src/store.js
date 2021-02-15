@@ -1,19 +1,12 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import reducer from './reducers';
 import thunk from 'redux-thunk';
-import { countryPickerReducer } from './reducers/countryPickerReducer';
-
-const reducer = combineReducers({
-  countryPicker: countryPickerReducer,
-});
-
-const initialState = {};
 
 const middleware = [thunk];
 
 const store = createStore(
   reducer,
-  initialState,
   composeWithDevTools(applyMiddleware(...middleware))
 );
 

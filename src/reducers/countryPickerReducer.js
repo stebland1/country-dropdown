@@ -69,3 +69,5 @@ export const countryPickerReducer = (
       return state;
   }
 };
+
+export default countryPickerReducer;

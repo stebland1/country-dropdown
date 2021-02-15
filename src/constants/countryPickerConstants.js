@@ -3,6 +3,5 @@ export const COUNTRY_LIST_SUCCESS = 'COUNTRY_LIST_SUCCESS';
 export const COUNTRY_LIST_FAIL = 'COUNTRY_LIST_FAIL';
 export const COUNTRY_FILTER = 'COUNTRY_FILTER';
 export const CLEAR_FILTERED = 'CLEAR_FILTERED';
-export const CLEAR_AFTER = 'CLEAR_AFTER';
 export const LOAD_MORE = 'LOAD_MORE';
 export const PER_PAGE = 25;

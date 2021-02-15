@@ -5,7 +5,6 @@ import {
   COUNTRY_LIST_FAIL,
   COUNTRY_FILTER,
   CLEAR_FILTERED,
-  CLEAR_AFTER,
   LOAD_MORE,
   PER_PAGE,
 } from '../constants/countryPickerConstants';
@@ -48,6 +47,5 @@ export const loadMoreCountries = (countries, after) => (dispatch) =>
   });
 
 export const clearCountry = () => (dispatch) => {
-  dispatch({ type: CLEAR_AFTER });
   dispatch({ type: CLEAR_FILTERED });
 };

@@ -4,7 +4,6 @@ import {
   COUNTRY_LIST_FAIL,
   COUNTRY_FILTER,
   CLEAR_FILTERED,
-  CLEAR_AFTER,
   LOAD_MORE,
   PER_PAGE,
 } from '../constants/countryPickerConstants';
@@ -52,6 +51,7 @@ export const countryPickerReducer = (
         filtered: null,
         loaded: [],
         more: true,
+        after: 0,
       };
     case LOAD_MORE:
       return {
@@ -59,11 +59,6 @@ export const countryPickerReducer = (
         loaded: [...state.loaded, ...action.payload],
         more: action.payload.length !== PER_PAGE ? false : true,
         after: state.after + PER_PAGE,
-      };
-    case CLEAR_AFTER:
-      return {
-        ...state,
-        after: 0,
       };
     default:
       return state;
